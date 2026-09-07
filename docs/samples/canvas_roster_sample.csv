@@ -1,0 +1,8 @@
+Student,ID,SIS User ID,SIS Login ID,Section
+,,,,
+    Points Possible,,,,
+"Fakerson, Alice",100001,1000001,afakerso,ENGG 130 - LAB H11 - 81637 and ENGG 130 - LEC B1 - 81636
+"Testley, Bob",100002,1000002,bteslety,ENGG 130 - LAB H11 - 81637 and ENGG 130 - LEC B1 - 81636
+"Sample, Carol",100003,1000003,csample1,ENGG 130 - LAB H11 - 81637 and ENGG 130 - LEC B1 - 81636
+"Mockford, Dana",100004,1000004,dmockfor,ENGG 130 - LAB H11 - 81637 and ENGG 130 - LEC B1 - 81636
+"Student, Test",100005,,266e1986ce362ddb11dfb08ec104f12cd8cb8fa6,"Default manual enrollments - course 30553, ENGG 130 - LAB H11 - 81637, and ENGG 130 - LEC B1 - 81636"

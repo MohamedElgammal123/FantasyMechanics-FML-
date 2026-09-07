@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(gh auth *)",
+      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command git -ErrorAction SilentlyContinue)",
+      "PowerShell(winget install --id GitHub.cli -e --source winget --accept-package-agreements --accept-source-agreements)",
+      "PowerShell($env:Path += \";C:\\\\Program Files\\\\GitHub CLI\"; gh --version)",
+      "PowerShell($env:Path += \";C:\\\\Program Files\\\\GitHub CLI\"; gh auth status 2>&1)",
+      "PowerShell($env:Path += \";C:\\\\Program Files\\\\GitHub CLI\"; gh auth status)",
+      "PowerShell($env:Path += \";C:\\\\Program Files\\\\GitHub CLI\"; gh repo create fml-platform --private --source=. --remote=origin --push)"
+    ]
+  }
+}
