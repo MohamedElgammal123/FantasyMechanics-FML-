@@ -1,0 +1,8 @@
+Student,ID,SIS User ID,SIS Login ID,Section,Final Score,Final Grade
+,,,,,,
+    Points Possible,,,,,,
+"Fakerson, Alice",100001,1000001,afakerso,ENGG 130 - LEC B1 - 81636,87.5,A
+"Testley, Bob",100002,1000002,bteslety,ENGG 130 - LEC B1 - 81636,72.3,B-
+"Sample, Carol",100003,1000003,csample1,ENGG 130 - LEC B1 - 81636,91.0,A+
+"Mockford, Dana",100004,1000004,dmockfor,ENGG 130 - LEC B1 - 81636,,
+"Newcomb, Evan",100006,1000006,enewcomb,ENGG 130 - LEC B1 - 81636,65.8,C+

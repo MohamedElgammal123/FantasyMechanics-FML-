@@ -1,0 +1,107 @@
+:root {
+  /* navy scale */
+  --navy-base: #0A1322;
+  --navy-panel: #0F1B2E;
+  --navy-card: #16263D;
+  --navy-nav: #121F33;
+  --navy-gradient: #1C2F4A;
+
+  /* steel accents */
+  --steel: #4A7FB8;
+  --steel-light: #6B9BC9;
+
+  /* text */
+  --cream: #F2ECD9;
+  --text-body: #C9D6E6;
+  --text-muted: #93A9C4;
+  --text-dim: #5E7695;
+
+  /* semantic */
+  --success: #7CC08B;
+  --warning: #D9B96B;
+  --danger: #C97C7C;
+
+  /* borders (steel at alpha) */
+  --border-steel: rgba(107, 155, 201, 0.3);
+  --border-steel-strong: rgba(107, 155, 201, 0.45);
+
+  /* fonts */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-ui: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--navy-base);
+  font-family: var(--font-body);
+  color: var(--text-body);
+}
+
+a {
+  color: var(--steel-light);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--cream);
+}
+
+.bg-blueprint {
+  background-color: var(--navy-panel);
+  background-image:
+    linear-gradient(rgba(107, 155, 201, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107, 155, 201, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@keyframes fml-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .45; }
+}
+
+@keyframes fml-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fml-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fml-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 192, 139, 0); }
+  50% { box-shadow: 0 0 22px 2px rgba(124, 192, 139, .28); }
+}
+
+@keyframes fml-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes fml-sheen {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  60%, 100% { transform: translateX(280%) skewX(-18deg); }
+}
+
+@keyframes fml-twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .55; transform: scale(1.25); }
+}
+
+@keyframes fml-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
