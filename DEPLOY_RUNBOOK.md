@@ -1,7 +1,8 @@
 # FML Production Deploy Runbook
 
-One sitting, top to bottom, no thinking required. Written 2026-08-23
-(after migration 0013). Everything here is YOURS to execute — the dev
+One sitting, top to bottom, no thinking required. Written 2026-08-23;
+production requirements refreshed 2026-09-09 (after migration 0014).
+Everything here is YOURS to execute — the dev
 project (`jnhktkejfsnuvvhdsrak`, "Fantasy Mechanics League") stays dev
 and is never touched by this document.
 
@@ -12,7 +13,7 @@ console login, ~45 minutes.
 
 ## 1. Create the production Supabase project
 
-1. https://supabase.com/dashboard → your org (Mowafy's Org) →
+1. https://supabase.com/dashboard → your own organization →
    **New project**.
 2. Fields:
    - **Name:** `fml-production`
@@ -23,12 +24,24 @@ console login, ~45 minutes.
    - **Region:** `ca-central-1` (Canada — Montréal). Student data
      stays in Canada.
    - Plan: Free is fine for a 1-section pilot.
+   - Free accounts allow two active projects; make sure this project
+     uses an available slot.
+   - **Enable Data API:** ON (the frontend uses `supabase-js`).
+   - **Automatically expose new tables:** OFF (`0014` grants access
+     explicitly).
+   - **Enable automatic RLS:** ON (the migrations also enable it
+     explicitly, so this is defense in depth).
+   - **Enable Data API:** ON (the frontend uses `supabase-js`).
+   - **Automatically expose new tables:** OFF (`0014` grants access
+     explicitly).
+   - **Enable automatic RLS:** ON (the migrations also enable it
+     explicitly, so this is defense in depth).
 3. **Create new project** → wait for provisioning (~2 min, status
    turns green).
 4. Note the new project's **ref** (the random string in the URL:
    `supabase.com/dashboard/project/<ref>`). You'll need it twice below.
 
-## 2. Apply migrations 0001 → 0013, in exact order
+## 2. Apply migrations 0001 → 0014, in exact order
 
 Open **SQL Editor** (left sidebar, `>_` icon) in the NEW project.
 For each file below, in this exact order: open the file from
@@ -62,11 +75,12 @@ Known dialog quirks, so nothing surprises you:
 | 11 | `0011_scheduling.sql` | Success. No rows returned (registers the pg_cron job silently) |
 | 12 | `0012_team_formation_rpcs.sql` | Success. No rows returned |
 | 13 | `0013_consent_and_domain.sql` | Destructive-op dialog (its `drop function`) → **Run query** → Success. No rows returned |
+| 14 | `0014_production_hardening.sql` | Success. No rows returned (enables remaining RLS and grants explicit Data API access) |
 
 Post-apply checks (paste each into the SQL editor):
 
 ```sql
--- 13 = every migration's objects landed; spot-check three:
+-- Spot-check functions created across the migration chain:
 select count(*) from pg_proc where proname in
   ('link_user_on_first_login','post_result_set','create_team',
    'respond_to_team_invite','run_all_sections_maintenance');
@@ -81,14 +95,22 @@ select * from cron.job;
 select column_name from information_schema.columns
 where table_name = 'profiles' and column_name = 'consent_at';
 -- expect 1 row (proves 0013 landed)
+
+select tablename, rowsecurity from pg_tables
+where schemaname = 'public'
+  and tablename in ('courses', 'terms', 'activity_types');
+-- expect 3 rows, all rowsecurity = true (proves 0014 landed)
+
+select has_function_privilege('anon',
+  'public.sweep_pending_enrollments(uuid,text,uuid)', 'execute');
+-- expect false (proves the internal enrollment helper is not an RPC)
 ```
 
 ## 3. Custom SMTP for auth emails
 
-Why: the built-in Supabase email service delivers roughly ONE email
-per address per hour and silently drops the rest — we measured this on
-dev on 2026-08-23. Fine for you alone; useless the first day students
-try magic links.
+Why: the built-in Supabase email service is currently limited to two
+Auth emails per project per hour. Fine for you alone; useless the first
+day students try magic links.
 
 **Comparison:**
 
@@ -168,12 +190,13 @@ redirect URI to it and sets the production Supabase callback.
    - Install command: `npm install`
    (SPA deep links are already handled — `vercel.json` in the repo
    rewrites everything to `index.html`.)
+   - Node.js version: 20 or newer (`package.json` enforces this).
 3. **Environment Variables** — add exactly these two (both scopes:
    Production + Preview):
    - `VITE_SUPABASE_URL` = `https://<prod-ref>.supabase.co`
      (Supabase fml-production → Project Settings → API → Project URL)
-   - `VITE_SUPABASE_ANON_KEY` = the **anon / public** key from the
-     same API settings page. (NEVER the service_role key — see §9.)
+   - `VITE_SUPABASE_PUBLISHABLE_KEY` = the `sb_publishable_...` key from
+     the same API settings page. (NEVER a secret/service-role key — see §9.)
 4. **Deploy** → wait for the build → note the production URL.
 5. Loop back: put that URL into §4 step 4 (JS origins) and §4 step 7
    (Site URL + Redirect URLs).
@@ -265,9 +288,9 @@ class. Steps 1–4 alone are enough to declare the deploy itself good.
   `seed_p9_addendum.sql`, `verify_0012…`, and anything zseed-marked
   are DEV-ONLY. The seed's own tripwire aborts if it sees a real
   class, but do not rely on it — just never paste seed files here.
-- **service_role key: never in the repo, never in Vercel env vars,
-  never in the client.** The app uses the anon key only, everywhere.
-  The service_role key exists only inside the Supabase dashboard.
+- **Secret/service-role key: never in the repo, never in Vercel env vars,
+  never in the client.** The browser uses only the publishable key.
+  Elevated keys stay inside trusted Supabase administration.
 - **The dev project stays dev.** Different ref, different keys,
   different OAuth redirect. Never point Vercel at
   `jnhktkejfsnuvvhdsrak`, and never apply an experiment to
@@ -278,3 +301,14 @@ class. Steps 1–4 alone are enough to declare the deploy itself good.
 - **Don't run ad-hoc UPDATE/DELETE in the production SQL editor**
   outside this runbook's steps. Dashboard SQL bypasses RLS; treat it
   as a scalpel you haven't been told to pick up.
+
+## 10. Free-tier operating checks
+
+- Supabase Free projects can pause after a low-activity week. Watch the
+  owner email during breaks and resume the project before a class begins.
+- Free projects do not include production-grade automatic backups. Run a
+  regular off-site `supabase db dump` and test restoring it.
+- Watch database size (500 MB free-plan read-only threshold) and egress in
+  the organization usage page.
+- Vercel Hobby is for non-commercial personal use. This educational pilot
+  qualifies only while it remains non-commercial.
